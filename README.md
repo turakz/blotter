@@ -15,7 +15,7 @@
   	<ul>
      	<li>
           	<!-- EVENTS BEGIN -->
-         	<b>::events</b>: simple observer/subject interface for implementing an extendible events system using a minimal push-model
+         	<b>::<a href="https://github.com/turakz/blotter/tree/master/events">events</b></a>: simple observer/subject interface for implementing an extendible events system using a minimal push-model
           	<ul>
             	<li><a href="https://github.com/turakz/blotter/tree/master/events/events.h">events.h</a></li>
               	<li><a href="https://github.com/turakz/blotter/tree/master/events/events.cpp">events.cpp</a></li>
