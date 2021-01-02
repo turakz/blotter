@@ -1,6 +1,8 @@
 // expose event handling interfaces
 #include "events.h"
 
+#include <boost/system/error_code.hpp>
+
 #include <iostream>
 #include <cassert>
 // extend the interface as needed -> ie: TCP socket events
@@ -10,7 +12,7 @@ class on_resolve : public blotter::events::event_base {
 public:
     on_resolve()
         : event_name_{"on resolve"} {}
-    void Handle()
+    void handle(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -23,7 +25,7 @@ class on_handshake : public blotter::events::event_base {
 public:
     on_handshake()
         : event_name_{"on handshake"} {}
-    void Handle()
+    void handle(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -36,7 +38,7 @@ class on_connect : public blotter::events::event_base {
 public:
     on_connect()
         : event_name_{"on connect"} {}
-    void Handle()
+    void handle(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -49,7 +51,7 @@ class on_request : public blotter::events::event_base {
 public:
     on_request()
         : event_name_{"on request"} {}
-    void Handle()
+    void handle(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -62,7 +64,7 @@ class on_response : public blotter::events::event_base {
 public:
     on_response()
         : event_name_{"on response"} {}
-    void Handle()
+    void handle(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -75,7 +77,7 @@ class on_disconnect : public blotter::events::event_base {
 public:
     on_disconnect()
         : event_name_{"on disconnect"} {}
-    void Handle()
+    void handle(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -88,7 +90,7 @@ class on_close : public blotter::events::event_base {
 public:
     on_close()
         : event_name_{"on close"} {}
-    void Handle()
+    void handle(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -104,10 +106,10 @@ int main(void)
 
     // events.h includes an interface for managing registered events
     blotter::events::event_manager em {};
+    boost::system::error_code ec {};
     std::cout << "adding use-case specific concrete events..." << std::endl;
     std::cout << "event: on resolve" << std::endl;
-
-    em.add_event("on resolve", new on_resolve {}); //note: this is just an example -> possible leak here if program terminates unexpectedly and ::event_manager destructor doesn't get called
+    em.add_event("on resolve", new on_resolve {});
     std::cout << "event: on handshake" << std::endl;
     em.add_event("on handshake", new on_handshake {});
     std::cout << "event: on connect" << std::endl;
@@ -122,13 +124,13 @@ int main(void)
     em.add_event("on close", new on_close {});
 
     std::cout << "raising events in no particular order to demonstrate firing events as needed..." << std::endl;
-    auto connectevent_base = em.raise_event("on connect");
-    auto resolveevent_base = em.raise_event("on resolve");
-    auto closeevent_base = em.raise_event("on close");
-    auto disconnectevent_base = em.raise_event("on disconnect");
-    auto requestevent_base = em.raise_event("on request");
-    auto responseevent_base = em.raise_event("on response");
-    auto handshakeevent_base = em.raise_event("on handshake");
+    auto connectevent_base = em.raise_event("on connect", ec);
+    auto resolveevent_base = em.raise_event("on resolve", ec);
+    auto closeevent_base = em.raise_event("on close", ec);
+    auto disconnectevent_base = em.raise_event("on disconnect", ec);
+    auto requestevent_base = em.raise_event("on request", ec);
+    auto responseevent_base = em.raise_event("on response", ec);
+    auto handshakeevent_base = em.raise_event("on handshake", ec);
     
     // raise_event returns true when an event was fired (ie, an event that can be fired exists)
     // demonstrate we raised the ones we wanted to
@@ -146,7 +148,7 @@ int main(void)
     std::cout << "all registered events fired!" << std::endl;
     // the system will not raise unregistered events
     std::cout << "firing an unregistered event..." << std::endl;
-    auto unregisteredevent_base = em.raise_event("unregistered event");
+    auto unregisteredevent_base = em.raise_event("unregistered event", ec);
     assert(unregisteredevent_base == false);
     if (!unregisteredevent_base)
     {

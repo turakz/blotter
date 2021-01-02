@@ -1,5 +1,7 @@
 #include "events.h"
 
+#include <boost/system/error_code.hpp>
+
 #include <iostream>
 #include <unordered_map>
 
@@ -20,7 +22,7 @@ void blotter::events::event_manager::add_event(const std::string& which, event_b
     auto e = events_.find(which);
     if (e == std::end(events_))
     {
-        events_.insert(std::make_pair(which, event));
+        events_.insert(std::make_pair(which, std::move(event)));
     }
     // notify observers we've added an event
 }
@@ -33,12 +35,12 @@ void blotter::events::event_manager::remove_event(const std::string& which, even
     }
     // notify observers we've removed an event
 }
-bool blotter::events::event_manager::raise_event(const std::string& which)
+bool blotter::events::event_manager::raise_event(const std::string& which, boost::system::error_code& ec)
 {
     auto e = events_.find(which);
     if (e != std::end(events_))
     {
-        events_[which]->Handle();
+        events_[which]->handle(ec);
         return true;
     }
     return false;
