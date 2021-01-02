@@ -2,6 +2,7 @@
 #define _EVENTS_H
 
 #include <unordered_map>
+
 namespace blotter {
     namespace events {
         class Event {

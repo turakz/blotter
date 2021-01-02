@@ -101,11 +101,13 @@ int main(void)
 {
     std::cout << "example for implementing an event system using blotter::events" << std::endl;
     std::cout << "constructing blotter::events::event_manager..." << std::endl;
+
     // events.h includes an interface for managing registered events
     blotter::events::event_manager em {};
     std::cout << "adding use-case specific concrete events..." << std::endl;
     std::cout << "event: on resolve" << std::endl;
-    em.add_event("on resolve", new on_resolve {});
+
+    em.add_event("on resolve", new on_resolve {}); //note: this is just an example -> possible leak here if program terminates unexpectedly and ::event_manager destructor doesn't get called
     std::cout << "event: on handshake" << std::endl;
     em.add_event("on handshake", new on_handshake {});
     std::cout << "event: on connect" << std::endl;
@@ -118,8 +120,8 @@ int main(void)
     em.add_event("on disconnect", new on_disconnect {});
     std::cout << "event: on close" << std::endl;
     em.add_event("on close", new on_close {});
+
     std::cout << "raising events in no particular order to demonstrate firing events as needed..." << std::endl;
-    // raise events in no particular order to demonstrate events can be fired as needed
     auto connectEvent = em.raise_event("on connect");
     auto resolveEvent = em.raise_event("on resolve");
     auto closeEvent = em.raise_event("on close");
@@ -127,6 +129,7 @@ int main(void)
     auto requestEvent = em.raise_event("on request");
     auto responseEvent = em.raise_event("on response");
     auto handshakeEvent = em.raise_event("on handshake");
+    
     // raise_event returns true when an event was fired (ie, an event that can be fired exists)
     // demonstrate we raised the ones we wanted to
     std::cout << "checking to make sure all registered events fired..." << std::endl;
