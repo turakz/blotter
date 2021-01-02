@@ -5,7 +5,7 @@
       	</h1>
       	<div>
         	<ul>
-            	<li>a collection of re(useable) abstractions and tools to aid in general c++ software development.  </li>  
+            	<li>a collection of (re)usable abstractions and tools to aid in general C++ software development.  </li>  
           	</ul>
       	</div>
 	</header>
