@@ -124,33 +124,33 @@ int main(void)
     em.add_event("on close", new on_close {});
 
     std::cout << "raising events in no particular order to demonstrate firing events as needed..." << std::endl;
-    auto connectevent_base = em.raise_event("on connect", ec);
-    auto resolveevent_base = em.raise_event("on resolve", ec);
-    auto closeevent_base = em.raise_event("on close", ec);
-    auto disconnectevent_base = em.raise_event("on disconnect", ec);
-    auto requestevent_base = em.raise_event("on request", ec);
-    auto responseevent_base = em.raise_event("on response", ec);
-    auto handshakeevent_base = em.raise_event("on handshake", ec);
+    auto connectevent = em.raise_event("on connect", ec);
+    auto resolveevent = em.raise_event("on resolve", ec);
+    auto closeevent = em.raise_event("on close", ec);
+    auto disconnectevent = em.raise_event("on disconnect", ec);
+    auto requestevent = em.raise_event("on request", ec);
+    auto responseevent = em.raise_event("on response", ec);
+    auto handshakeevent = em.raise_event("on handshake", ec);
     
     // raise_event returns true when an event was fired (ie, an event that can be fired exists)
     // demonstrate we raised the ones we wanted to
     std::cout << "checking to make sure all registered events fired..." << std::endl;
     assert
     (
-        connectevent_base
-        && resolveevent_base
-        && closeevent_base
-        && disconnectevent_base
-        && requestevent_base
-        && responseevent_base
-        && handshakeevent_base
+        connectevent
+        && resolveevent
+        && closeevent
+        && disconnectevent
+        && requestevent
+        && responseevent
+        && handshakeevent
     ); 
     std::cout << "all registered events fired!" << std::endl;
     // the system will not raise unregistered events
     std::cout << "firing an unregistered event..." << std::endl;
-    auto unregisteredevent_base = em.raise_event("unregistered event", ec);
-    assert(unregisteredevent_base == false);
-    if (!unregisteredevent_base)
+    auto unregisteredevent = em.raise_event("unregistered event", ec);
+    assert(unregisteredevent == false);
+    if (!unregisteredevent)
     {
         std::cout << "unregistered event was not fired" << std::endl;
     }
