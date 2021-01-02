@@ -6,7 +6,7 @@
 // extend the interface as needed -> ie: TCP socket events
 // resolve event
 // -------------
-class on_resolve : public blotter::events::Event {
+class on_resolve : public blotter::events::event_base {
 public:
     on_resolve()
         : event_name_{"on resolve"} {}
@@ -19,7 +19,7 @@ private:
 };
 // handshake event
 // ---------------
-class on_handshake : public blotter::events::Event {
+class on_handshake : public blotter::events::event_base {
 public:
     on_handshake()
         : event_name_{"on handshake"} {}
@@ -32,7 +32,7 @@ private:
 };
 // connect event
 // -------------
-class on_connect : public blotter::events::Event {
+class on_connect : public blotter::events::event_base {
 public:
     on_connect()
         : event_name_{"on connect"} {}
@@ -45,7 +45,7 @@ private:
 };
 // request event (send)
 // --------------------
-class on_request : public blotter::events::Event {
+class on_request : public blotter::events::event_base {
 public:
     on_request()
         : event_name_{"on request"} {}
@@ -58,7 +58,7 @@ private:
 };
 // response event (received)
 // -------------------------
-class on_response : public blotter::events::Event {
+class on_response : public blotter::events::event_base {
 public:
     on_response()
         : event_name_{"on response"} {}
@@ -71,7 +71,7 @@ private:
 };
 // disconnect event
 // ----------------
-class on_disconnect : public blotter::events::Event {
+class on_disconnect : public blotter::events::event_base {
 public:
     on_disconnect()
         : event_name_{"on disconnect"} {}
@@ -84,7 +84,7 @@ private:
 };
 // close event
 // -----------
-class on_close : public blotter::events::Event {
+class on_close : public blotter::events::event_base {
 public:
     on_close()
         : event_name_{"on close"} {}
@@ -122,38 +122,38 @@ int main(void)
     em.add_event("on close", new on_close {});
 
     std::cout << "raising events in no particular order to demonstrate firing events as needed..." << std::endl;
-    auto connectEvent = em.raise_event("on connect");
-    auto resolveEvent = em.raise_event("on resolve");
-    auto closeEvent = em.raise_event("on close");
-    auto disconnectEvent = em.raise_event("on disconnect");
-    auto requestEvent = em.raise_event("on request");
-    auto responseEvent = em.raise_event("on response");
-    auto handshakeEvent = em.raise_event("on handshake");
+    auto connectevent_base = em.raise_event("on connect");
+    auto resolveevent_base = em.raise_event("on resolve");
+    auto closeevent_base = em.raise_event("on close");
+    auto disconnectevent_base = em.raise_event("on disconnect");
+    auto requestevent_base = em.raise_event("on request");
+    auto responseevent_base = em.raise_event("on response");
+    auto handshakeevent_base = em.raise_event("on handshake");
     
     // raise_event returns true when an event was fired (ie, an event that can be fired exists)
     // demonstrate we raised the ones we wanted to
     std::cout << "checking to make sure all registered events fired..." << std::endl;
     assert
     (
-        connectEvent
-        && resolveEvent
-        && closeEvent
-        && disconnectEvent
-        && requestEvent
-        && responseEvent
-        && handshakeEvent
+        connectevent_base
+        && resolveevent_base
+        && closeevent_base
+        && disconnectevent_base
+        && requestevent_base
+        && responseevent_base
+        && handshakeevent_base
     ); 
     std::cout << "all registered events fired!" << std::endl;
     // the system will not raise unregistered events
     std::cout << "firing an unregistered event..." << std::endl;
-    auto unregisteredEvent = em.raise_event("unregistered event");
-    assert(unregisteredEvent == false);
-    if (!unregisteredEvent)
+    auto unregisteredevent_base = em.raise_event("unregistered event");
+    assert(unregisteredevent_base == false);
+    if (!unregisteredevent_base)
     {
         std::cout << "unregistered event was not fired" << std::endl;
     }
     std::cout << "events-handling done!" << std::endl;
-    // event_manager destructor calls delete on every Event object registered to it
+    // event_manager destructor calls delete on every event_base object registered to it
     std::cout << "destroying manager and registered events for the context..." << std::endl;
     return 0;
 }
