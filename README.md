@@ -16,10 +16,10 @@
   	<ul>
      	<li>
           	<!-- EVENTS BEGIN -->
-         	<b>::<a href="https://github.com/turakz/blotter/tree/master/events">events</b></a>: simple observer/subject interface for implementing an extendible events system using a minimal push-model
+         	<b>::<a href="https://github.com/turakz/blotter/tree/master/events">events</b></a>: simple observer/subject interface for implementing an extendible events system using a minimal push-model 
           	<ul>
             	<li><a href="https://github.com/turakz/blotter/tree/master/events/events.h">events.h</a></li>
-              	<li><a href="https://github.com/turakz/blotter/tree/master/events/events.cpp">events.cpp</a></li>
+                <li><a href="https://github.com/turakz/blotter/blob/master/events/tcp-client-with-events.cpp">async tcp client example</a></li>
           	</ul>
            <!-- EVENTS END -->
       	</li>  
