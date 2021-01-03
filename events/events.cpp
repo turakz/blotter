@@ -26,7 +26,7 @@ void blotter::events::event_manager::add_event(const std::string& which, event_b
     }
     // notify observers we've added an event
 }
-void blotter::events::event_manager::remove_event(const std::string& which, event_base* event)
+void blotter::events::event_manager::remove_event(const std::string& which)
 {
     auto e = events_.find(which);
     if (e != std::end(events_))
@@ -40,7 +40,7 @@ bool blotter::events::event_manager::raise_event(const std::string& which, boost
     auto e = events_.find(which);
     if (e != std::end(events_))
     {
-        events_[which]->handle(ec);
+        events_[which]->handler(ec);
         return true;
     }
     return false;

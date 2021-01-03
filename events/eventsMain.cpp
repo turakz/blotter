@@ -12,7 +12,7 @@ class on_resolve : public blotter::events::event_base {
 public:
     on_resolve()
         : event_name_{"on resolve"} {}
-    void handle(boost::system::error_code& ec)
+    void handler(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -25,7 +25,7 @@ class on_handshake : public blotter::events::event_base {
 public:
     on_handshake()
         : event_name_{"on handshake"} {}
-    void handle(boost::system::error_code& ec)
+    void handler(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -38,7 +38,7 @@ class on_connect : public blotter::events::event_base {
 public:
     on_connect()
         : event_name_{"on connect"} {}
-    void handle(boost::system::error_code& ec)
+    void handler(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -51,7 +51,7 @@ class on_request : public blotter::events::event_base {
 public:
     on_request()
         : event_name_{"on request"} {}
-    void handle(boost::system::error_code& ec)
+    void handler(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -64,7 +64,7 @@ class on_response : public blotter::events::event_base {
 public:
     on_response()
         : event_name_{"on response"} {}
-    void handle(boost::system::error_code& ec)
+    void handler(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -77,7 +77,7 @@ class on_disconnect : public blotter::events::event_base {
 public:
     on_disconnect()
         : event_name_{"on disconnect"} {}
-    void handle(boost::system::error_code& ec)
+    void handler(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
@@ -90,7 +90,7 @@ class on_close : public blotter::events::event_base {
 public:
     on_close()
         : event_name_{"on close"} {}
-    void handle(boost::system::error_code& ec)
+    void handler(boost::system::error_code& ec)
     {
         std::cout << "event raised, handling: " << event_name_ << std::endl;
     }
