@@ -33,7 +33,6 @@ public:
         add_event("on response", new on_response{this});
         add_event("on disconnect", new on_disconnect{this});
         add_event("on test", new on_disconnect{this});
-        remove_event("on test");
     }
     ~tcp_client() override
     {
@@ -309,7 +308,7 @@ int main(void)
     std::cout << prompt << "please type a message to send to " << url << ":" << port << std::endl;
     std::cout << prompt;
     std::getline(std::cin, message);
-    // every boost io service needsa an execution context
+    // every boost io service needs an execution context
     boost::asio::io_context ioc {};
     // init our client (and allocate event handlers)
     tcp_client client(prompt, ioc, url, port, message);
