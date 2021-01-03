@@ -11,9 +11,11 @@ namespace blotter {
         public:
             // we default construct derived classes on the heap
             event_base() = default;
-            // because polymorphic, suppress copy, get move
+            // because polymorphic, suppress copy, move to prevent slicing
             event_base(const event_base&) = delete;
             event_base& operator=(const event_base&) = delete;
+            event_base(event_base&&) = delete;
+            event_base& operator=(event_base&&) = delete;
             // we want classes managing derived events allocated via new to be able to call delete on their polymorphic representations
             // ie: Interface* obj = new Drived{}; ~Derived => for every derived stored as base, delete base end
             virtual ~event_base() = default;
@@ -24,9 +26,11 @@ namespace blotter {
         public:
             // we default construct derived classes statically
             event_manager_base() = default;
-            // polymorphism/derived classes need to destroy resources -> suppress copy, get move, implement derived destructor
+            // polymorphism/derived classes need to destroy resources -> suppress copy, move, implement derived destructor
             event_manager_base(const event_manager_base&) = delete;
             event_manager_base& operator=(const event_manager_base&) = delete;
+            event_manager_base(event_manager_base&&) = delete;
+            event_manager_base& operator=(event_manager_base&&) = delete;
             virtual ~event_manager_base(){};
             virtual void add_event(const std::string& which, event_base* event) = 0;
             virtual void remove_event(const std::string& which) = 0;
@@ -38,6 +42,8 @@ namespace blotter {
             event_manager() = default;
             event_manager(const event_manager&) = delete;
             event_manager& operator=(const event_manager&) = delete;
+            event_manager(event_manager&&) = delete;
+            event_manager& operator=(event_manager&&) = delete;
             ~event_manager() override;
             void add_event(const std::string& which, event_base* event) override;
             void remove_event(const std::string& which) override;
