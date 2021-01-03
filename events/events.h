@@ -7,6 +7,7 @@
 
 namespace blotter {
     namespace events {
+        class event_manager_base;
         class event_base {
         public:
             // we default construct derived classes on the heap
@@ -36,20 +37,6 @@ namespace blotter {
             virtual void remove_event(const std::string& which) = 0;
             // this interface is meant to be used in conjunction with boost facilities -- give event handlers access to boost error state
             virtual bool raise_event(const std::string& which, boost::system::error_code& ec) = 0;
-        };
-        class event_manager : public event_manager_base {
-        public:
-            event_manager() = default;
-            event_manager(const event_manager&) = delete;
-            event_manager& operator=(const event_manager&) = delete;
-            event_manager(event_manager&&) = delete;
-            event_manager& operator=(event_manager&&) = delete;
-            ~event_manager() override;
-            void add_event(const std::string& which, event_base* event) override;
-            void remove_event(const std::string& which) override;
-            bool raise_event(const std::string& event, boost::system::error_code& ec) override;
-        private:
-            std::unordered_map<std::string, event_base*> events_;
         };
     }//events
 }//blotter
