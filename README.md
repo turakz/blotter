@@ -6,7 +6,7 @@
       	<div>
         	<ul>
             	<li>a collection of (re)usable abstractions and tools for general C++ software development.</li>
-                <li>intended to be used in conjunction with some <a href="https://www.boost.org">boost</a> facilities (::asio, ::beast, etc.)</li>
+                <li>some components are intended to be used in conjunction with <a href="https://www.boost.org">boost</a> facilities (::asio, ::beast, etc.)</li>
           	</ul>
       	</div>
 	</header>
