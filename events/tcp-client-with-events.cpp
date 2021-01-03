@@ -29,10 +29,10 @@ public:
         add_event("on resolve", new on_resolve{this});
         add_event("on connect", new on_connect{this});
         add_event("on handshake", new on_handshake{this});
+        add_event("on send", new on_send{this});
         add_event("on read", new on_read{this});
         add_event("on response", new on_response{this});
         add_event("on disconnect", new on_disconnect{this});
-        add_event("on test", new on_disconnect{this});
     }
     ~tcp_client() override
     {
@@ -127,6 +127,7 @@ public:
             LogError(ec, "tcp_client::send_request(error_code)");
             return;
         }
+        std::cout << prompt_ << "sending request..." << std::endl;
         websocket_.async_write(boost::asio::buffer(std::move(request)),
             [this](auto ec, auto) //nBytesTransferred
             {
@@ -141,6 +142,7 @@ public:
             LogError(ec, "tcp_client::send_request(error_code)");
             return;
         }
+        std::cout << prompt_ << "sending request..." << std::endl;
         websocket_.async_write(boost::asio::buffer(std::move(ec.message())),
             [this](auto ec, auto) //nBytesTransferred
             {
@@ -239,6 +241,22 @@ private:
             client_context_->listen(ec);
             // dispatch other callbacks
             client_context_->send_request(client_context_->message_, ec);
+        }
+    private:
+        tcp_client* client_context_;
+    };
+    // on send event
+    class on_send : public blotter::events::event_base {
+    public:
+        on_send(tcp_client* client)
+            : client_context_(client) {}
+        void handler(boost::system::error_code& ec)
+        {
+            if (ec)
+            {
+                client_context_->LogError(ec, "tcp_client::on_send");
+                return; 
+            }
         }
     private:
         tcp_client* client_context_;
