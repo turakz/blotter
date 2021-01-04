@@ -17,14 +17,15 @@ public:
             const std::string& url, 
             const std::string& port, 
             const std::string& message)
-        : prompt_{prompt},
-          resolver_{boost::asio::make_strand(ioc)}, 
-          websocket_{boost::asio::make_strand(ioc)}, 
-          readBuffer_{}, 
-          url_{url}, 
-          port_{port},
-          message_{message},
-          nBytesRead_{0} 
+        :   events_{},
+            resolver_{boost::asio::make_strand(ioc)}, 
+            websocket_{boost::asio::make_strand(ioc)}, 
+            readBuffer_{}, 
+            prompt_{prompt},
+            url_{url}, 
+            port_{port},
+            message_{message},
+            nBytesRead_{0} 
     {
         add_event("on resolve", new on_resolve{this});
         add_event("on connect", new on_connect{this});
@@ -179,6 +180,11 @@ private:
             : client_context_(client) {}
         void handler(boost::system::error_code& ec) override
         {
+            if (ec)
+            {
+                client_context_->LogError(ec, "tcp_client::on_resolve");
+                return;
+            }
             std::cout << client_context_->prompt_ << "resolved " << client_context_->url_ << ":" << client_context_->port_ << std::endl;
             std::cout << client_context_->prompt_ << "establishing connection..." << std::endl;
             client_context_->websocket_.next_layer().async_connect(*client_context_->endpoint_,
