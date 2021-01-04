@@ -24,10 +24,9 @@ namespace blotter {
         class event_manager_base {
         public:
             event_manager_base() = default;
+            // suppress copy, get move
             event_manager_base(const event_manager_base& emb) = delete;
             event_manager_base& operator=(const event_manager_base& emb) = delete;
-            event_manager_base(event_manager_base&& emb) = delete;
-            event_manager_base& operator=(event_manager_base&& emb) = delete;
             // event managers own resources (registered events) -> event manager implements its own destructor
             virtual ~event_manager_base(){};
             virtual void add_event(const std::string& which, event_base* event) = 0;

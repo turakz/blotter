@@ -51,7 +51,7 @@ public:
         auto e = events_.find(which);
         if (e == std::end(events_))
         {
-            events_.insert(std::make_pair(which, event));
+            events_.insert(std::make_pair(which, std::move(event)));
         }
     }
     void remove_event(const std::string& which) override
@@ -304,6 +304,11 @@ private:
             : client_context_(client) {}
         void handler(boost::system::error_code& ec)
         {
+            if (ec)
+            {
+                client_context_->LogError(ec, "tcp_client::on_disconnect");
+                return;
+            }
             std::cout << client_context_->prompt_ << "disconnected...goodbye!" << std::endl;
         }
     private:
