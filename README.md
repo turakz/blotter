@@ -1,18 +1,28 @@
+<header>
+    <h1>
+        <b>blotter</b>
+    </h1>
+    <div>
+        <ul>
+            <li>a collection of (re)usable abstractions and tools for general C++ software development.</li>
+        </ul>
+    </div>
+</header>
 <body>
-    <header>
-        <h1>
-        	<b>blotter</b>
-      	</h1>
-      	<div>
-        	<ul>
-            	<li>a collection of (re)usable abstractions and tools for general C++ software development.</li>
-                <li>some components are intended to be used in conjunction with other libraries like <a href="https://www.boost.org">boost</a> (::asio, ::beast, etc.)</li>
-          	</ul>
-      	</div>
-	</header>
-	<h1>
+	<h2>
+        <b>dependencies</b>
+    </h2>
+    <ul>
+        <li>
+       		<a href="https://www.boost.org">boost</a> (::asio, ::beast, etc.) 
+        </li>
+		<li>
+			<a href="https://www.openssl.org/">OpenSSL</a>
+		</li>
+    </ul>
+    <h2>
     	<b>docs</b>  
-  	</h1>
+  	</h2>
   	<ul>
      	<li>
           	<!-- EVENTS BEGIN -->

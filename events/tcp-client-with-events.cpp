@@ -3,7 +3,10 @@
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
+#include <boost/beast/ssl.hpp>
 #include <boost/system/error_code.hpp>
+
+#include <openssl/ssl.h>
 
 #include <iostream>
 #include <iostream>
@@ -13,13 +16,14 @@ public:
     // client construction -> never construct without parameters
     // ---------------------------------------------------------
     tcp_client(const std::string& prompt,
-            boost::asio::io_context& ioc, 
+            boost::asio::io_context& ioc,
+            boost::asio::ssl::context& ssl_ctx, 
             const std::string& url, 
             const std::string& port, 
             const std::string& message)
         :   events_{},
             resolver_{boost::asio::make_strand(ioc)}, 
-            websocket_{boost::asio::make_strand(ioc)}, 
+            websocket_{boost::asio::make_strand(ioc), ssl_ctx}, 
             readBuffer_{}, 
             prompt_{prompt},
             url_{url}, 
@@ -29,7 +33,8 @@ public:
     {
         add_event("on resolve", new on_resolve{this});
         add_event("on connect", new on_connect{this});
-        add_event("on handshake", new on_handshake{this});
+        add_event("on tcp handshake", new on_tcp_handshake{this});
+        add_event("on tls handshake", new on_tls_handshake{this});
         add_event("on send", new on_send{this});
         add_event("on read", new on_read{this});
         add_event("on response", new on_response{this});
@@ -89,7 +94,8 @@ public:
     }
     void connect() 
     {
-        std::cout << prompt_ << "attempting to resolve " << url_ << ":" << port_ << "..." << std::endl;
+        std::cout << prompt_ << "resolving " << url_ << ":" << port_ << "..." << std::endl;
+        std::cout << prompt_ << "attempting to connect..." << std::endl;
         resolver_.async_resolve(url_, port_,
             [this](auto ec, auto endpoint)
             {
@@ -183,16 +189,25 @@ private:
             if (ec)
             {
                 client_context_->LogError(ec, "tcp_client::on_resolve");
+                // initiate error response
+                client_context_->raise_event("on connect", ec);
                 return;
             }
             std::cout << client_context_->prompt_ << "resolved " << client_context_->url_ << ":" << client_context_->port_ << std::endl;
-            std::cout << client_context_->prompt_ << "establishing connection..." << std::endl;
-            client_context_->websocket_.next_layer().async_connect(*client_context_->endpoint_,
-                [this](auto ec)
-                {
-                    client_context_->raise_event("on connect", ec);
-                }
-            );
+            std::cout << client_context_->prompt_ << "connecting..." << std::endl;
+            // timeout is only there for connecting to the tcp socket
+            // once connected, reset to something boost suggests
+			// tcp is lowest layer: websocket > tls > tcp
+            boost::beast::get_lowest_layer(client_context_->websocket_).expires_after(std::chrono::seconds(5));
+
+			// connect to tcp socket
+            boost::beast::get_lowest_layer(client_context_->websocket_).async_connect(*client_context_->endpoint_,
+				[this](auto ec) 
+				{
+					client_context_->raise_event("on connect", ec);
+				}
+			); 
+
         }
     private:
         tcp_client* client_context_;
@@ -212,31 +227,56 @@ private:
             }
             std::cout << client_context_->prompt_ << "connected to " << client_context_->url_ << ":" << client_context_->port_ << std::endl;
             // set timeouts
-            client_context_->websocket_.next_layer().expires_never();
+            boost::beast::get_lowest_layer(client_context_->websocket_).expires_never();
             client_context_->websocket_.set_option(boost::beast::websocket::stream_base::timeout::suggested(
                 boost::beast::role_type::client
             ));
-            std::cout << client_context_->prompt_ << "handshaking over secure tcp websocket..." << std::endl;
-            client_context_->websocket_.async_handshake(client_context_->url_, "/",
+            // websocket connection established, attempt tls handshake
+            std::cout << client_context_->prompt_ << "tls handshaking over websocket..." << std::endl;
+
+            client_context_->websocket_.next_layer().async_handshake(boost::asio::ssl::stream_base::client,
                 [this](auto ec)
                 {
-                   client_context_->raise_event("on handshake", ec); 
+                   client_context_->raise_event("on tls handshake", ec); 
                 }
             );
         }
     private:
         tcp_client* client_context_;
     };
-    // handshake event
-    class on_handshake : public blotter::events::event_base {
+    // handshake events
+    class on_tls_handshake : public blotter::events::event_base {
     public:
-        on_handshake(tcp_client* client)
+        on_tls_handshake(tcp_client* client)
             : client_context_(client) {}
         void handler(boost::system::error_code& ec)
         {
             if (ec)
             {
-                client_context_->LogError(ec, "tcp_client::on_handshake");
+                client_context_->LogError(ec, "tcp_client::on_tls_handshake");
+                // initiate error request
+                client_context_->raise_event("on connect", ec);
+            }
+            std::cout << client_context_->prompt_ << "handshaking over websocket..." << std::endl;
+            client_context_->websocket_.async_handshake(client_context_->url_, "/",
+                [this](auto ec)
+                {
+                    client_context_->raise_event("on tcp handshake", ec);
+                }
+            );
+        }
+    private:
+        tcp_client* client_context_;
+    };
+    class on_tcp_handshake : public blotter::events::event_base {
+    public:
+        on_tcp_handshake(tcp_client* client)
+            : client_context_(client) {}
+        void handler(boost::system::error_code& ec)
+        {
+            if (ec)
+            {
+                client_context_->LogError(ec, "tcp_client::on_tcp_handshake");
                 // send error resposne
                 client_context_->send_request(ec);
                 return;
@@ -317,7 +357,9 @@ private:
     std::unordered_map<std::string, blotter::events::event_base*> events_;
     boost::asio::ip::tcp::resolver resolver_;
     boost::asio::ip::tcp::resolver::iterator endpoint_;
-    boost::beast::websocket::stream<boost::beast::tcp_stream> websocket_;
+    boost::beast::websocket::stream<
+        boost::beast::ssl_stream<boost::beast::tcp_stream>
+    > websocket_;
     boost::beast::flat_buffer readBuffer_;
     std::string prompt_;
     std::string url_;
@@ -331,7 +373,7 @@ int main(void)
     // init some output stuffs
     auto prompt = std::string{"< ~ client ~ >: "};
     auto url = std::string{"echo.websocket.org"};
-    auto port = std::string{"80"};
+    auto port = std::string{"443"};
     auto message = std::string{""};
     // let user decide what to send
     std::cout << prompt << "please type a message to send to " << url << ":" << port << std::endl;
@@ -339,9 +381,12 @@ int main(void)
     std::getline(std::cin, message);
     // every boost io service needs an execution context
     boost::asio::io_context ioc {};
+    boost::asio::ssl::context ssl_ctx {boost::asio::ssl::context::tlsv12_client};
+    // load ssl cert
+    ssl_ctx.load_verify_file("cacert.pem");
     // init our client (and allocate event handlers)
-    tcp_client client(prompt, ioc, url, port, message);
-    // begin async connect callback sequence
+    tcp_client client(prompt, ioc, ssl_ctx, url, port, message);
+    // begin async callback sequence
     client.connect();
     // do work
     ioc.run();
