@@ -1,0 +1,1 @@
+g++ -std=c++17 events.h tcp-client-with-events.cpp -o tcp-client-example -L /usr/lib -lboost_thread -lboost_system -lpthread -lssl -lcrypto
