@@ -9,7 +9,6 @@
 #include <openssl/ssl.h>
 
 #include <iostream>
-#include <iostream>
 
 class tcp_client : public blotter::events::event_manager_base {
 public:
