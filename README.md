@@ -28,10 +28,16 @@
           	<!-- EVENTS BEGIN -->
          	<b>::<a href="https://github.com/turakz/blotter/tree/master/events">events</b></a>: simple observer/subject interface for implementing an extendible events system using a minimal push-model 
           	<ul>
-            	<li><a href="https://github.com/turakz/blotter/tree/master/events/events.h">events.h</a></li>
+                <li><a href="https://github.com/turakz/blotter/tree/master/events/events.h">events.h</a></li>
                 <li><a href="https://github.com/turakz/blotter/blob/master/events/tcp-client-with-events.cpp">async tcp client example</a></li>
           	</ul>
-           <!-- EVENTS END -->
+            <!-- EVENTS END -->
+            <!-- STRATEGY BEGIN -->
+            <ul>
+                <li><a href="https://github.com/turakz/blotter/blob/master/strategies/strategy.h">strategy.h</a></li>
+                <li><a href="https://github.com/turakz/blotter/blob/master/strategies/strategy_example.cpp">strategies example: int vector sorting</a></li>
+            </ul>
+            <!-- STRATEGY END -->
       	</li>  
   	</ul>
 </body>
