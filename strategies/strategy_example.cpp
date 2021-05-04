@@ -15,7 +15,16 @@
 
 // develop some concrete strategies
 namespace int_vec_strategy {
-    class sort_asc : public strategy {
+
+    // for this particular example, extend interface for client use
+    class extended_strategy : public strategy {
+    public:
+        ~extended_strategy() {}
+        virtual std::vector<int> data() = 0;
+    };
+
+    // implement stategy interface(s) for each concrete strategy
+    class sort_asc : public extended_strategy {
     public:
         sort_asc() {}
         sort_asc(const std::vector<int>& input)
@@ -32,7 +41,7 @@ namespace int_vec_strategy {
     private:
         std::vector<int> _v;    
     };
-    class sort_desc : public strategy {
+    class sort_desc : public extended_strategy {
     public:
         sort_desc() {}
         sort_desc(const std::vector<int>& input)
@@ -55,54 +64,46 @@ namespace int_vec_strategy {
 class int_vector {
 public:
     int_vector()
-        : _int_vec(std::vector<int>{}), _sort_asc(nullptr), _sort_desc(nullptr) {}
+        : _int_vec(std::vector<int>{}), _sort_strat(nullptr) {}
     int_vector(const std::vector<int>& input)
-        : _int_vec(input), _sort_asc(nullptr), _sort_desc(nullptr)
-    {
-        _sort_asc = new int_vec_strategy::sort_asc{input};
-        _sort_desc = new int_vec_strategy::sort_desc{input};
-    }
+        : _int_vec(input), _sort_strat(nullptr) {}
     ~int_vector()
     {
-        if (_sort_asc)
+        if (_sort_strat)
         {
-            delete _sort_asc;
-            _sort_asc = nullptr;
-        }
-        if (_sort_desc)
-        {
-            delete _sort_desc;
-            _sort_desc = nullptr;
+            delete _sort_strat;
+            _sort_strat = nullptr;
         }
     }
-    void sort_asc() 
+    void sort() 
     {
-        if (_sort_asc) 
+        if (_sort_strat) 
         {
-            _sort_asc->execute();
-            _int_vec = _sort_asc->data();
+            _sort_strat->execute();
+            _int_vec = _sort_strat->data();
         }
     }
-    void sort_desc()
+    void set_sort_strategy(int_vec_strategy::extended_strategy* strategy)
     {
-        if (_sort_desc)
+        if (_sort_strat)
         {
-            _sort_desc->execute();
-            _int_vec = _sort_desc->data();
+            delete _sort_strat;
+            _sort_strat = nullptr;
         }
+        _sort_strat = strategy;
     }
     std::vector<int> data() { return _int_vec; }
 private:
-    int_vec_strategy::sort_asc* _sort_asc;
-    int_vec_strategy::sort_desc* _sort_desc;
+    int_vec_strategy::extended_strategy* _sort_strat;
     std::vector<int> _int_vec;
 };
 
 int main(void)
 {
-    int_vector int_vec{ std::vector<int> {10, 1, 9, 2, 8, 3, 7, 4, 6, 5 } };
-    std::vector<int> result = int_vec.data();
+    // start
+    int_vector int_vec{ std::vector<int> {10, 1, 9, 2, 8, 3, 7, 4, 6, 5} };
     std::cout << "executing no strategy..." << std::endl;
+    std::vector<int> result = int_vec.data();
     std::cout << "int_vec = {";
     for (std::size_t i = 0; i < result.size(); ++i)
     {
@@ -116,9 +117,10 @@ int main(void)
         }
     }
     std::cout << '}' << std::endl;
-
+    // strategies
     std::cout << "executing sort_asc strategy..." << std::endl;
-    int_vec.sort_asc();
+    int_vec.set_sort_strategy(new int_vec_strategy::sort_asc{int_vec.data()});
+    int_vec.sort();
     result = int_vec.data();
     std::cout << "int_vec = {";
     for (std::size_t i = 0; i < result.size(); ++i)
@@ -135,7 +137,8 @@ int main(void)
     std::cout << '}' << std::endl;
 
     std::cout << "executing sort_desc strategy..." << std::endl;
-    int_vec.sort_desc();
+    int_vec.set_sort_strategy(new int_vec_strategy::sort_desc{int_vec.data()});
+    int_vec.sort();
     result = int_vec.data();
     std::cout << "int_vec = {";
     for (std::size_t i = 0; i < result.size(); ++i)
