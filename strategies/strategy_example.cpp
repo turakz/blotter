@@ -17,7 +17,7 @@
 namespace int_vec_strategy {
 
     // for this particular example, extend interface for client use
-    class extended_strategy : public blotter::strategy {
+    class extended_strategy : public blotter::strategy_base {
     public:
         ~extended_strategy() {}
         virtual std::vector<int> data() = 0;
